@@ -3,20 +3,75 @@ const fs = require("fs");
 //const router = require("express");
 const data = require('../db/db.json');
 const router = require('express').Router();
+const { notes } = require('../db/db.json');
 
-router.get('/notes', function (req, res) {
-    return res.json(data); 
+
+
+
+router.get('/notes', (req, res) => {
+    fs.readFile('./db/db.json', (error, data) => {
+        if (error) {
+            throw error;
+        } else {
+            let notes = [];
+            if (data) {
+                notes = JSON.parse(data);
+            }
+            return res.json(notes);
+        }
+    });
 });
 
-router.post('/notes', function (req, res) {
-    let newNote = res.body
-        fs.appendFile('./db/db.json', newNote, function (err) {
-            if (err) throw err;
-            console.log('Updated!');
-        });
-        data.push(newNote);
-        res.json(newNote);
+router.post('/notes', (req, res) => {
+
+    fs.readFile('./db/db.json', (error, data) => {
+        if (error) {
+            throw error;
+        } else {
+            let notes = [];
+            if (data) {
+                notes = JSON.parse(data);
+            };
+            let note = req.body;
+            note.id = notes.length;
+            notes.push(note);
+            fs.writeFileSync(
+                path.join(__dirname, '../db/db.json'),
+                JSON.stringify(notes, null, 2),
+                (error, data) => {
+                    if (error) {
+                        throw error;
+                    }
+                }
+            );
+            res.json(notes)
+        }
+    });
 });
 
-
-module.exports = router
+router.delete('/notes/:id', (req, res) => {
+    fs.readFile('./db/db.json', (error, data) => {
+        if (error) {
+            throw error;
+        } else {
+            let notes = [];
+            if (data) {
+                notes = JSON.parse(data);
+            };
+            let note = req.body;
+            note.id = req.params.id;
+            notes.splice(note.id, 1);
+            fs.writeFileSync(
+                path.join(__dirname, '../db/db.json'),
+                JSON.stringify(notes, null, 2),
+                (error, data) => {
+                    if (error) {
+                        throw error;
+                    }
+                    return res.json(notes);
+                }
+            );
+        }
+    });
+    res.json(req.params.id);
+});
