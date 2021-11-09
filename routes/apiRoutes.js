@@ -4,7 +4,7 @@ const fs = require("fs");
 const data = require('../db/db.json');
 const router = require('express').Router();
 const { notes } = require('../db/db.json');
-
+const path = require('path');
 
 
 
@@ -75,3 +75,5 @@ router.delete('/notes/:id', (req, res) => {
     });
     res.json(req.params.id);
 });
+
+module.exports = router;
